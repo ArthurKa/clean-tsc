@@ -2,7 +2,6 @@
   "name": "clean-tsc",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "scripts": {
     "ts:noWatch": "tsc --noEmit",
     "ts": "npm run ts:noWatch -- -w",
