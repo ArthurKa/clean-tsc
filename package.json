@@ -1,0 +1,51 @@
+{
+  "name": "clean-tsc",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "ts:noWatch": "tsc --noEmit",
+    "ts": "npm run ts:noWatch -- -w",
+    "dev": "npm run start-checks && tsc -w",
+    "build": "npm run start-checks && rm -rf dist && tsc",
+    "start-checks": "node helpers/start-checks.js",
+    "repo-fix": "node helpers/eslint.js --fix",
+    "prepublishOnly": "node helpers/prepublish-checks.js",
+    "prepare": "node -e \"try { require('husky').install(); } catch(e) { if(e.code !== 'MODULE_NOT_FOUND') throw e; }\""
+  },
+  "dependencies": {
+    "chokidar": "3.5.3",
+    "throttle-debounce": "5.0.0",
+    "yargs": "17.7.2"
+  },
+  "devDependencies": {
+    "@arthurka/eslint": "3.14.0",
+    "@arthurka/ts-reset": "1.1.1",
+    "@total-typescript/ts-reset": "0.5.1",
+    "@tsconfig/node18-strictest": "1.0.0",
+    "@types/lint-staged": "13.2.0",
+    "@types/node": "18.17.17",
+    "@types/throttle-debounce": "5.0.0",
+    "@types/yargs": "17.0.24",
+    "husky": "8.0.3",
+    "json5": "2.2.3",
+    "lint-staged": "13.2.3",
+    "typescript": "5.1.6"
+  },
+  "author": {
+    "name": "ArthurKa",
+    "email": "arthur.katruk@gmail.com"
+  },
+  "license": "ISC",
+  "bin": {
+    "clean-tsc": "dist/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArthurKa/clean-tsc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ArthurKa/clean-tsc/issues"
+  },
+  "homepage": "https://github.com/ArthurKa/clean-tsc#readme"
+}
