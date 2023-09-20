@@ -88,11 +88,23 @@ export const tscClean = async () => {
     const removedFiles: string[] = [];
 
     for(const file of files) {
-      if(await fs.stat(path.resolve(dist, dir, file)).then(e => e.isDirectory())) {
+      const isDirectory = (
+        await fs
+          .stat(path.resolve(dist, dir, file))
+          .then(e => e.isDirectory())
+          .catch(() => 'error' as const)
+      );
+
+      if(isDirectory === 'error') {
+        removedFiles.push(file);
+        continue;
+      }
+
+      if(isDirectory) {
         const isNotEmpty = await preprocessFolder(path.posix.join(dir, file));
         if(!isNotEmpty) {
           verbosePrint(`Remove empty folder "${path.posix.join(dist, dir, file)}".`);
-          await fs.rmdir(path.join(dist, dir, file));
+          await fs.rmdir(path.join(dist, dir, file)).catch(() => {});
           removedFiles.push(file);
         }
         continue;
@@ -116,7 +128,7 @@ export const tscClean = async () => {
         verbosePrint(`OK: "${distFilePath}" => "${srcFilePath}"`);
       } else {
         verbosePrint(`No match for "${distFilePath}" in "${src}".`);
-        await fs.unlink(path.resolve(dist, dir, file));
+        await fs.unlink(path.resolve(dist, dir, file)).catch(() => {});
         removedFiles.push(file);
         if(!silent) {
           console.info(`REMOVED: "${distFilePath}".`);
