@@ -88,8 +88,8 @@ export const tscClean = async () => {
     const removedFiles: string[] = [];
 
     for(const file of files) {
-      const isDirectory = (
-        await fs
+      const isDirectory = await (
+        fs
           .stat(path.resolve(dist, dir, file))
           .then(e => e.isDirectory())
           .catch(() => 'error' as const)
@@ -110,22 +110,26 @@ export const tscClean = async () => {
         continue;
       }
 
-      const srcFilePath = path.posix.join(src, dir, file.replace(/\.(d\.ts|js)(\.map)?$/, '.ts'));
-      const isFile = (
-        await fs
-          .stat(path.resolve(srcFilePath))
-          .then(e => e.isFile())
-          .catch(e => {
-            if((e as any)?.code === 'ENOENT') {
-              return false;
-            }
-            throw e;
-          })
-      );
+      const srcFilePaths = ['.ts', '.tsx'].map(ext => path.posix.join(src, dir, file.replace(/\.(d\.ts|js)(\.map)?$/, ext)));
+      const srcFiles = await Promise.all(srcFilePaths.map(async filePath => ({
+        filePath,
+        isFile: await (
+          fs
+            .stat(path.resolve(filePath))
+            .then(e => e.isFile())
+            .catch(e => {
+              if((e as any)?.code === 'ENOENT') {
+                return false;
+              }
+              throw e;
+            })
+        ),
+      })));
+      const srcFile = srcFiles.find(e => e.isFile);
 
       const distFilePath = path.posix.join(dist, dir, file);
-      if(isFile) {
-        verbosePrint(`OK: "${distFilePath}" => "${srcFilePath}"`);
+      if(srcFile?.isFile) {
+        verbosePrint(`OK: "${distFilePath}" => "${srcFile.filePath}"`);
       } else {
         verbosePrint(`No match for "${distFilePath}" in "${src}".`);
         await fs.unlink(path.resolve(dist, dir, file)).catch(() => {});
